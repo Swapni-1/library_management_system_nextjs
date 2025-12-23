@@ -1,0 +1,89 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String          @id @default(cuid())
+  name          String?
+  username      String?         @unique
+  email         String?         @unique
+  emailVerified DateTime?
+  image         String?
+  password      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Category{
+  category_id String @id @default(cuid())
+  name String
+  slug String @unique
+  book Book[] @relation("BookCategory")
+}
+
+model Book{
+  book_id String @id @default(cuid())
+  name String
+  description String @db.Text
+  price Int
+  publisher String
+  published_year DateTime
+  bookImg String
+  total_quantity Int
+  category Category[] @relation("BookCategory")
+  bookIssue BookIssue[] @relation("Book&Issue")
+  bookReturn BookReturn[] @relation("Book&Return")
+}
+
+model Student{
+  student_id String @id @default(cuid())
+  name String
+  father_name String
+  course_name String
+  course_type CourseType
+  year String
+  bookIssue BookIssue[] @relation("Student&Issue")
+  bookReturn BookReturn[] @relation("Student&Return")
+}
+
+enum CourseType{
+  YEAR
+  SEMESTER
+}
+
+model BookIssue{
+  issue_id String @id @default(cuid())
+  issueDate DateTime @default(now())
+  dueDate DateTime
+  book Book[] @relation("Book&Issue")
+  student Student [] @relation("Student&Issue")
+}
+
+model BookReturn{
+  return_id String @id @default(cuid())
+  issue_id String @unique
+  returnDate DateTime
+  dueDate DateTime
+  paid PayOption @default(NOT_PAID)
+  book Book[] @relation("Book&Return")
+  student Student[] @relation("Student&Return")
+}
+
+enum PayOption{
+  PAID
+  NOT_PAID
+}
+
+
+
