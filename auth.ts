@@ -3,23 +3,32 @@ import { PrismaAdapter } from "@auth/prisma-adapter"
 import { prisma } from "@/lib/prisma"
 import Credentials from "next-auth/providers/credentials";
  
-export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(prisma),
+export const { handlers, signIn, signOut, auth } = NextAuth({
+  adapter : PrismaAdapter(prisma),
   providers: [
     Credentials({
       credentials : {
-        email : {
-          label : "Email",
+        username : {
+          label : "Username",
           type : "text"
         },
         password : {
-          label : "Password", 
-          type : "password",
+          label : "Password",
+          type : "password"
         }
       },
-      authorize : async (credentials) => {
-        const user = await prisma.user.findUnique({
-          where: { username: credentials.email as string },
+      authorize : async (credentials) =>{
+        const user = await prisma.user.findFirst({
+          where: { 
+               OR : [
+                {
+                  username : credentials.username as string
+                },
+                {
+                  email : credentials.username as string
+                }
+               ]
+           },
         });
 
         if(!user){
@@ -34,9 +43,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
     })
   ],
+  trustHost : true,
   session : {
-    strategy : "jwt",
+    strategy : "jwt"
   },
   debug : process.env.NODE_ENV === "development",
-  secret : process.env.AUTH_SECRET
+  secret : process.env.AUTH_SECRET,
 })

@@ -19,12 +19,14 @@ model User {
   name          String?
   username      String?         @unique
   email         String?         @unique
-  emailVerified DateTime?
-  image         String?
+  //emailVerified DateTime?
+  //image         String?
   password      String
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  //updatedAt DateTime @updatedAt
 }
+
+
 
 model Category{
   category_id String @id @default(cuid())
